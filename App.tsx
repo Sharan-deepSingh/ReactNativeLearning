@@ -1,118 +1,63 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import { useEffect, useState } from 'react';
+import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+function App() {
+  const [show, setShow] = useState(true)
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
+    <View>
+      <Text style={styles.text}>Unmount Lifecycle Demo</Text>
+      <TouchableOpacity style={styles.button} onPress={() => setShow(false)}>
+        <Text style={styles.buttonText}>Press me to hide the student</Text>
+      </TouchableOpacity>
+      {
+        show ? <Student /> : null
+      }
     </View>
-  );
+  )
 }
 
-function App(): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+const Student = () => {
+  let timer = setInterval(() => {console.warn("I will be called after 4 seconds")}, 4000)
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  useEffect(() => {
+    return () => clearInterval(timer)
+  })
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
+    <View>
+      <Text style={styles.text}>yes, I'm a student</Text>
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  text: {
+    marginTop: 60,
+    fontSize: 20,
+    backgroundColor: 'lightgreen',
+    color: 'white',
+    textAlign: 'center',
+    padding: 10
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  button: {
+    marginTop: 80,
+    margin: 20,
+    backgroundColor: 'lightpink',
+    padding: 10,
+    borderRadius: 8,
+    shadowColor: 'black',
+    shadowOffset: {
+      width: 5,
+      height: 5
+    },
+    shadowOpacity: 0.4,
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+  buttonText: {
+    textAlign: 'center',
+    color: 'white',
+    fontSize: 18
+  }
+})
 
 export default App;
