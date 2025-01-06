@@ -1,118 +1,88 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import { useState } from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
-  useColorScheme,
+  TouchableOpacity,
   View,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+function App() {
+  const [selectedId, setSelectedId] = useState(1)
+  const data = [
+    {
+      language: 'Python',
+      id: 1
+    },
+    {
+      language: 'Swift',
+      id: 2
+    },
+    {
+      language: 'Java',
+      id: 3
+    },
+    {
+      language: 'java Script',
+      id: 4
+    },
+    {
+      language: 'C++',
+      id: 5
+    },
+  ]
 
-function Section({children, title}: SectionProps): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
+    <View style={styles.mainView}>
+      <View>
+      {
+        data.map((item) => (
+          <TouchableOpacity style={styles.button} onPress={() => setSelectedId(item.id)}>
+            <View style={styles.radio}>
+              { item.id == selectedId ? <View style={styles.buttonSelector} ></View> : null}
+            </View>
+            <Text style={styles.textStyle}>{item.language}</Text>
+          </TouchableOpacity>
+        ))
+      }
+      </View>
     </View>
   );
 }
 
-function App(): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+const styles = StyleSheet.create(
+  {
+    mainView: {
+      backgroundColor: 'lightpink',
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    button: {
+      flexDirection: 'row',
+      margin: 10,
+    },
+    radio: {
+      borderColor: 'black',
+      borderWidth: 2,
+      width: 20,
+      height: 20,
+      borderRadius: 16,
+      justifyContent: 'center',
+      alignItems: 'center'
+    },
+    buttonSelector: {
+      backgroundColor: 'green',
+      width: 12,
+      height: 12,
+      borderRadius: 16
+    },
+    textStyle: {
+      marginLeft: 10,
+      fontWeight: 'bold',
+      fontSize: 16,
+    }
+  }
+)
 
 export default App;
