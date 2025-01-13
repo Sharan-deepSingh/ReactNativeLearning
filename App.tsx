@@ -1,32 +1,23 @@
 import { useState } from 'react';
-import { View, Button } from 'react-native';
+import { View, Button, SafeAreaView } from 'react-native';
 import Login from './LoginScreens/Login';
 import {NavigationContainer} from '@react-navigation/native'
-import {createNativeStackNavigator} from '@react-navigation/native-stack'
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs'
 import Signup from './LoginScreens/Signup';
 
-function App() {
-  const Stack = createNativeStackNavigator()
+const App = () => {
+  const TopTab = createMaterialTopTabNavigator();
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ 
-        headerStyle: {
-          backgroundColor: 'green'
-       },
-       headerTintColor: 'white',
-       headerTitleStyle: {
-        fontSize: 18
-       } 
-      }}>
-        <Stack.Screen name="Login" component={Login} options={{
-          headerLeft: () => <Button title='Left' color='white'/>,
-          headerRight: () => <Button title='Right' color='white'/>
-        }}/>
-        <Stack.Screen name="  " component={Signup}/>
-      </Stack.Navigator>
+      <SafeAreaView style={{ flex: 1 }}>
+        <TopTab.Navigator>
+          <TopTab.Screen name="Login" component={Login} />
+          <TopTab.Screen name="Signup" component={Signup} />
+        </TopTab.Navigator>
+      </SafeAreaView>
     </NavigationContainer>
   );
-}
+};
 
 export default App;

@@ -1,13 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native'
 
-const Signup = (props) => {
-    const { name, work } = props.route.params;
-
+const Signup = () => {
     return (
         <View style={styles.viewStyle}>
             <Text>Signup</Text>
-            <Text></Text>
-            <Text></Text>
         </View>
     );
 }

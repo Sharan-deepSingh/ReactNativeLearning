@@ -375,6 +375,9 @@ PODS:
   - React-jsinspector (0.72.6)
   - React-logger (0.72.6):
     - glog
+  - react-native-pager-view (6.6.1):
+    - RCT-Folly (= 2021.07.22.00)
+    - React-Core
   - react-native-safe-area-context (5.1.0):
     - React-Core
   - react-native-webview (13.12.5):
@@ -545,6 +548,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
+  - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
@@ -628,6 +632,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
+  react-native-pager-view:
+    :path: "../node_modules/react-native-pager-view"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-webview:
@@ -705,6 +711,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 3bf18ff7cb03cd8dfdce08fbbc0d15058c1d71ae
   React-jsinspector: 194e32c6aab382d88713ad3dd0025c5f5c4ee072
   React-logger: cebf22b6cf43434e471dc561e5911b40ac01d289
+  react-native-pager-view: c2121f83e960d4bfff95b35fb779ab09c8b65657
   react-native-safe-area-context: 04803a01f39f31cc6605a5531280b477b48f8a88
   react-native-webview: 22b1df0ae5c60abf7ea63c18eabe72b238c7f999
   React-NativeModulesApple: 02e35e9a51e10c6422f04f5e4076a7c02243fff2
