@@ -65,12 +65,12 @@ function App() {
         data ?
           <FlatList
             data={data}
-            renderItem={({ item }) => <Cell item={item} deleteData={deleteData} openUpdatePopup={openUpdatePopup} update={update} updateData={updateData} updateItem={updateItem}/>}
+            renderItem={({ item }) => <Cell item={item} deleteData={deleteData} openUpdatePopup={openUpdatePopup} update={update} updateData={updateData} updateItem={updateItem} />}
           />
           : null
       }
 
-    <UpdatePopup update={update} updateData={updateData} updateItem={updateItem}/>
+      <UpdatePopup update={update} updateData={updateData} updateItem={updateItem} />
 
     </View>
   );
@@ -112,26 +112,26 @@ function UpdatePopup(props) {
       visible={props.update}
       animationType='slide'
     >
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)'}}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
         <View style={styles.updateView}>
           <Text style={styles.updateViewHeading}>Enter updated Values</Text>
           <TextInput
             style={styles.textInput}
             placeholder='Enter Age'
             value={age}
-            onChangeText={(value)=>setAge(value)}
+            onChangeText={(value) => setAge(value)}
           />
           <TextInput
             style={styles.textInput}
             placeholder='Enter Name'
             value={name}
-            onChangeText={(value)=>setName(value)}
+            onChangeText={(value) => setName(value)}
           />
-          <TouchableOpacity 
-            style={{borderBottomRightRadius: 16, borderBottomLeftRadius: 16, backgroundColor: 'skyblue'}}
-            onPress={()=>props.updateData({id: props.updateItem.id, age: age, name: name})}
+          <TouchableOpacity
+            style={{ borderBottomRightRadius: 16, borderBottomLeftRadius: 16, backgroundColor: 'skyblue' }}
+            onPress={() => props.updateData({ id: props.updateItem.id, age: age, name: name })}
           >
-            <Text style={[styles.button, {backgroundColor: 'rgba(0,0,0,0)'}]}>Update</Text>
+            <Text style={[styles.button, { backgroundColor: 'rgba(0,0,0,0)' }]}>Update</Text>
           </TouchableOpacity>
         </View>
       </View>
