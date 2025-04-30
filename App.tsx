@@ -1,118 +1,86 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import React, { useEffect, useState } from 'react';
+import { confirmPlatformPayPayment, isPlatformPaySupported, PlatformPay, PlatformPayButton, StripeProvider } from '@stripe/stripe-react-native';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
+    Text,
+    View,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+function App() {
+    const [isApplePaySupported, setIsApplePaySupported] = useState(false);
+    const [clientSecret, setClientSecret] = useState(null);
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+    useEffect(() => {
+        console.log("running useEffect");
+        const checkApplePaySupport = async () => {
+            const supported = await isPlatformPaySupported();
+            setIsApplePaySupported(supported);
+        };
 
-function Section({children, title}: SectionProps): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+        checkApplePaySupport();
+    }, [])
 
-function App(): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+    return (
+        <View>
+            <StripeProvider
+                publishableKey="pk_test_51RHPH0FZGgl6mfV8hQcOnNDBfvXzRV2dkEtdn6LYhefricGZM85qtMyIkLvYmnlGtDCgmVxNfi4diWirHszw9Wgb001e8GfaHS"
+                merchantIdentifier="merchant.com.reactnativelearning"
+            >
+                <View>
+                    {isApplePaySupported ? (
+                        <View style={{ marginTop: 50 }}>
+                            <Text>Apple Pay is supported</Text>
 
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+                            <PlatformPayButton
+                                onPress={async () => {
+                                    try {
+                                        const res = await fetch('http://localhost:3001/payment_intent', {
+                                            method: 'POST',
+                                          });
+                                        const data = await res.json();
+                                        const clientSecret = data.client_secret;
+                                        console.log('Client secret is here', clientSecret)
+
+                                        const { error } = await confirmPlatformPayPayment(clientSecret, {
+                                            applePay: {
+                                                cartItems: [
+                                                    {
+                                                        label: 'Test Item',
+                                                        amount: '10.00',
+                                                        paymentType: PlatformPay.PaymentType.Immediate,
+                                                    },
+                                                ],
+                                                merchantCountryCode: 'CA',
+                                                currencyCode: 'CAD',
+                                            },
+                                        });
+
+                                        if (error) {
+                                            console.error('Payment failed', error);
+                                        } else {
+                                            console.log('Payment successful');
+                                        }
+                                    } catch (err) {
+                                        console.error('Fetch error', err);
+                                    }
+                                }}
+                                type={PlatformPay.ButtonType.InStore}
+                                style={{ width: 200, height: 44 }}
+                            />
+
+                            {clientSecret && <Text>{clientSecret}</Text>}
+
+                        </View>
+                    ) : (
+                        <View style={{ marginTop: 50 }}>
+                            <Text>Apple Pay is not supported</Text>
+                        </View>
+                    )}
+
+                </View>
+            </StripeProvider>
         </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
+    );
 }
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default App;
