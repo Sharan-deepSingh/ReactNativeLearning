@@ -1,9 +1,5 @@
 import {
-    confirmPlatformPayPayment,
     isPlatformPaySupported,
-    PlatformPay,
-    PlatformPayButton,
-    StripeProvider
 } from '@stripe/stripe-react-native';
 import {
     useEffect,
@@ -16,15 +12,20 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View,
 } from 'react-native';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import ApplePayButton, { ApplePayButtonType } from './ApplePayStripe';
+import MerchantCountryCode from './ApplePayStripe/merchantCountryCodes';
+import CurrencyCode from './ApplePayStripe/currencyCodes';
 
 function App() {
     const [isApplePaySupported, setIsApplePaySupported] = useState(false);
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false)
     const bottomSheetRef = useRef<BottomSheet>(null);
     const snapPoints = useMemo(() => ['25%'], []);
+    const publishableKey = "pk_test_51RHPH0FZGgl6mfV8hQcOnNDBfvXzRV2dkEtdn6LYhefricGZM85qtMyIkLvYmnlGtDCgmVxNfi4diWirHszw9Wgb001e8GfaHS"
+    const merchantIdentifier = "merchant.com.reactnativelearning"
+    const [clientSecret, setClientSecret] = useState('')
 
     useEffect(() => {
         const checkApplePaySupport = async () => {
@@ -33,59 +34,16 @@ function App() {
         };
 
         checkApplePaySupport();
+        getclientSecret();
     }, [])
 
-
-    const ApplePayButton = () => {
-        return isApplePaySupported ? (
-            <StripeProvider
-                publishableKey="pk_test_51RHPH0FZGgl6mfV8hQcOnNDBfvXzRV2dkEtdn6LYhefricGZM85qtMyIkLvYmnlGtDCgmVxNfi4diWirHszw9Wgb001e8GfaHS"
-                merchantIdentifier="merchant.com.reactnativelearning"
-            >
-                <PlatformPayButton
-                    onPress={() => {
-                        initiatePaymentViaApplePay();
-                    }}
-                    type={PlatformPay.ButtonType.InStore}
-                    style={{ height: 45, width: '90%', marginTop: 30 }}
-                />
-            </StripeProvider>
-        ) : (
-            <Text style={styles.paymentOptionNotAvailable}> Pay is unavailable ❌</Text>
-        )
-    }
-
-    const initiatePaymentViaApplePay = async () => {
-        try {
-            const res = await fetch('http://localhost:3001/payment_intent', {
-                method: 'POST',
-            });
-            const data = await res.json();
-            const clientSecret = data.client_secret;
-            console.log('Client secret is here', clientSecret)
-
-            const { error } = await confirmPlatformPayPayment(clientSecret, {
-                applePay: {
-                    cartItems: [
-                        {
-                            label: 'Test Item',
-                            amount: '10.00',
-                            paymentType: PlatformPay.PaymentType.Immediate,
-                        },
-                    ],
-                    merchantCountryCode: 'CA',
-                    currencyCode: 'CAD',
-                },
-            });
-
-            if (error) {
-                console.error('Payment failed', error);
-            } else {
-                console.log('Payment successful');
-            }
-        } catch (err) {
-            console.error('Fetch error', err);
-        }
+    const getclientSecret = async () => {
+        const res = await fetch('http://localhost:3001/payment_intent', {
+            method: 'POST',
+        });
+        const data = await res.json();
+        setClientSecret(data.client_secret)
+        console.log('client secret is inside get', data.client_secret);
     }
 
     const StripePayButton = () => {
@@ -100,9 +58,11 @@ function App() {
         <GestureHandlerRootView style={[styles.container, isBottomSheetOpen ? { backgroundColor: 'gray' } : {}]}>
             <TouchableOpacity
                 style={styles.selectPaymentOption}
-                onPress={() => {
+                onPress={async () => {
                     setIsBottomSheetOpen(true)
                     bottomSheetRef.current?.snapToIndex(0);
+                    await getclientSecret();
+                    console.log('client secret is', clientSecret);
                 }}
             >
                 <Text style={styles.selectPaymentOptionText}>Select Payment Option</Text>
@@ -121,7 +81,23 @@ function App() {
                 }}
             >
                 <BottomSheetView style={styles.contentContainer}>
-                    <ApplePayButton />
+                    <ApplePayButton 
+                        publishableKey={publishableKey}
+                        merchantIdentifier={merchantIdentifier}
+                        clientSecret={clientSecret}
+                        merchantCountryCode={MerchantCountryCode.CA}
+                        currencyCode={CurrencyCode.INR}
+                        itemLabel="Test Item"
+                        itemAmount="10.00"
+                        buttonType={ApplePayButtonType.Default}
+                        response={(error, response) => {
+                            if (error) {
+                                console.error('Payment failed', error);
+                            } else {
+                                console.log('Payment successful', response);
+                            }
+                        }}
+                    />
                     <StripePayButton />
                 </BottomSheetView>
             </BottomSheet>

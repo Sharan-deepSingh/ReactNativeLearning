@@ -3,78 +3,112 @@ import {
     isPlatformPaySupported,
     PlatformPay,
     PlatformPayButton,
-    StripeProvider
-} from '@stripe/stripe-react-native';
-import { 
-    useState 
-} from 'react';
-import { 
-    Text 
-} from 'react-native';
-import styles from './styles';
-
-interface ApplePayButtonComponent {
+    StripeProvider,
+    } from '@stripe/stripe-react-native';
+  import React, { useEffect, useState } from 'react';
+  import { Text, StyleProp, ViewStyle } from 'react-native';
+  import styles from './styles';
+import CurrencyCode from './currencyCodes';
+import MerchantCountryCode from './merchantCountryCodes';
+  
+  export enum ApplePayButtonType {
+    Default = 'Default',
+    Buy = 'buy',
+    Donate = 'donate',
+    Checkout = 'checkout',
+    Book = 'book',
+    Subscribe = 'subscribe',
+  }
+  
+  interface ApplePayButtonProps {
     publishableKey: string;
     merchantIdentifier: string;
     clientSecret: string;
-    merchantCountryCode: string;
-    currencyCode: string;
+    merchantCountryCode: MerchantCountryCode;
+    currencyCode: CurrencyCode;
     itemLabel: string;
     itemAmount: string;
-    payentType: PlatformPay.PaymentType;
-} 
-
-function ApplePayButton() {
-    const [isApplePaySupported, setIsApplePaySupported] = useState(false);
-
-    const ApplePayButton = () => {
-        return isApplePaySupported ? (
-            <StripeProvider
-                publishableKey="pk_test_51RHPH0FZGgl6mfV8hQcOnNDBfvXzRV2dkEtdn6LYhefricGZM85qtMyIkLvYmnlGtDCgmVxNfi4diWirHszw9Wgb001e8GfaHS"
-                merchantIdentifier="merchant.com.reactnativelearning"
-            >
-                <PlatformPayButton
-                    onPress={() => {
-                        initiatePaymentViaApplePay();
-                    }}
-                    type={PlatformPay.ButtonType.InStore}
-                    style={{ height: 45, width: '90%', marginTop: 30 }}
-                />
-            </StripeProvider>
-        ) : (
-            <Text style={styles.paymentOptionNotAvailable}> Pay is unavailable ❌</Text>
-        )
-    }
-
+    buttonType?: ApplePayButtonType;
+    style?: StyleProp<ViewStyle>;
+    response: (error: any, response: string) => void;
+  }
+  
+  const ApplePayButton: React.FC<ApplePayButtonProps> = ({
+    publishableKey,
+    merchantIdentifier,
+    clientSecret,
+    merchantCountryCode,
+    currencyCode,
+    itemLabel,
+    itemAmount,
+    buttonType = ApplePayButtonType.Buy,
+    style,
+    response,
+  }) => {
+    const [isSupported, setIsSupported] = useState(false);
+  
+    useEffect(() => {
+      isPlatformPaySupported().then(setIsSupported);
+    }, []);
+  
     const initiatePaymentViaApplePay = async () => {
-        try {
-            const res = await fetch('http://localhost:3001/payment_intent', {
-                method: 'POST',
-            });
-            const data = await res.json();
-            const clientSecret = data.client_secret;
-
-            const { error } = await confirmPlatformPayPayment(clientSecret, {
-                applePay: {
-                    cartItems: [
-                        {
-                            label: 'Test Item',
-                            amount: '10.00',
-                            paymentType: PlatformPay.PaymentType.Immediate,
-                        },
-                    ],
-                    merchantCountryCode: 'CA',
-                    currencyCode: 'CAD',
-                },
-            });
-
-            if (error) {
-                console.error('Payment failed', error);
-            } else {
-                console.log('Payment successful');
-            }
-        } catch (err) {
-            console.error('Fetch error', err);
+      try {
+        const { error } = await confirmPlatformPayPayment(clientSecret, {
+          applePay: {
+            cartItems: [
+              {
+                label: itemLabel,
+                amount: itemAmount,
+                paymentType: PlatformPay.PaymentType.Immediate,
+              },
+            ],
+            merchantCountryCode,
+            currencyCode,
+          },
+        });
+  
+        if (error) {
+          response(error, 'failed');
+        } else {
+          console.log('Payment successful');
+          response(null, 'success');
         }
-    }
-}
+      } catch (err: any) {
+        console.error('Exception during payment', err);
+        response(err, '');
+      }
+    };
+  
+    const mapButtonType = (type: ApplePayButtonType): PlatformPay.ButtonType => {
+      switch (type) {
+        case ApplePayButtonType.Default:
+          return PlatformPay.ButtonType.Default;
+        case ApplePayButtonType.Donate:
+          return PlatformPay.ButtonType.Donate;
+        case ApplePayButtonType.Checkout:
+          return PlatformPay.ButtonType.Checkout;
+        case ApplePayButtonType.Book:
+          return PlatformPay.ButtonType.Book;
+        case ApplePayButtonType.Subscribe:
+          return PlatformPay.ButtonType.Subscribe;
+        case ApplePayButtonType.Buy:
+        default:
+          return PlatformPay.ButtonType.Buy;
+      }
+    };
+  
+    return isSupported ? (
+      <StripeProvider publishableKey={publishableKey} merchantIdentifier={merchantIdentifier}>
+        <PlatformPayButton
+          onPress={initiatePaymentViaApplePay}
+          style={style || { height: 45, width: '90%', marginTop: 30 }}
+          type={mapButtonType(buttonType)}
+        />
+      </StripeProvider>
+    ) : (
+      <Text style={styles.paymentOptionNotAvailable}> Pay is unavailable ❌</Text>
+    );
+  };
+  
+  export default ApplePayButton;
+  
